@@ -8,7 +8,36 @@ import (
 
 func main() {
 
-tamplate1 :=
+	if len(os.Args) < 2 {
+		fmt.Printf("not enouth arguments\n")
+		os.Exit(1)
+	}
+
+	// subcomand := os.Args[0]
+	subcomand := os.Args[1]
+
+	switch subcomand {
+	case "run":
+		if len(os.Args) < 3 {
+			fmt.Printf("not enouth arguments\n")
+			os.Exit(1)
+		}
+
+		subcomandArgs := os.Args[2]
+		doWork(subcomandArgs)
+	case "-h", "-help", "help":
+		fmt.Println("=== help ===")
+		fmt.Printf("run 'example.p'")
+		os.Exit(0)
+	default:
+		fmt.Println("no more commands only run")
+		os.Exit(1)
+	}
+
+}
+
+func doWork(filepath string) {
+	tamplate1 :=
 `<!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -37,7 +66,7 @@ tamplate2 :=
 </html>
 `
 
-	filePath := "main.pau"
+	filePath := filepath
 	content, err := os.ReadFile(filePath)
 	if err != nil {
 		fmt.Printf("read file failed: %v\n", err)
@@ -57,7 +86,6 @@ tamplate2 :=
 		fmt.Print(node.String())
 	}
 	fmt.Print(tamplate2)
-
 }
 
 /*
