@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	filePath := "main.lt"
+	filePath := "main.pau"
 	content, err := os.ReadFile(filePath)
 	if err != nil {
 		fmt.Printf("read file failed: %v\n", err)
