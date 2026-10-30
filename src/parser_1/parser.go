@@ -38,7 +38,9 @@ func (n *Node) String() string {
 
 	switch n.NodeType {
 	case TypeMainHead:
-		return n.NodeMainHead.MainText
+		return n.NodeMainHead.Template
+	case TypeTemplateFloor:
+		return n.NodeTemplateFloor.Template
 	case TypeTextLine:
 		return n.NodeTextLine.LineText
 	default:
@@ -51,10 +53,15 @@ type NodeKind int
 const (
 	TypeMainHead NodeKind = iota
 	TypeTextLine
+	TypeTemplateFloor
 )	
 
 type NodeMainHead struct {
-	MainText string
+	Template string
+}
+
+type NodeTemplateFloor struct {
+	Template string
 }
 
 type NodeTextLine struct {
@@ -65,20 +72,22 @@ type NodeTextLine struct {
 type Node struct {
 	NodeType    NodeKind
 
-	NodeMainHead *NodeMainHead
-	NodeTextLine *NodeTextLine
+	NodeMainHead 	  *NodeMainHead
+	NodeTextLine 	  *NodeTextLine
+	NodeTemplateFloor *NodeTemplateFloor
 
 }
 
 // Главная функция парсинга всего файла
 func (p *Parser) Parse() ([]*Node, error) {
 	var nodes []*Node
+	var HeadTitle string
 
 	if p.curTok.Type == TokenText {
-		main_head := p.curTok.Val
+		HeadTitle = p.curTok.Val
 		p.nextToken()
 		p.skipNewLine()
-		nodes = append(nodes, newMainHead(main_head))
+		nodes = append(nodes, newMainHead(HeadTitle))
 	}
 
 	for p.curTok.Type != TokenEOF {
@@ -95,6 +104,8 @@ func (p *Parser) Parse() ([]*Node, error) {
 		}
 		nodes = append(nodes, node)
 	}
+
+	nodes = append(nodes, newTamplateFloor(HeadTitle))
 
 	return nodes, nil
 }
@@ -152,13 +163,33 @@ template :=
 
     <h1 align="center">Title</h1>
     <hr>
+
 `
 	newtemplate := strings.ReplaceAll(template, "Title", main_text)
 
-	newMainHead := &NodeMainHead{MainText: newtemplate}
+	newMainHead := &NodeMainHead{Template: newtemplate}
 	return &Node{
 		NodeType: TypeMainHead,
 		NodeMainHead: newMainHead}
+}
+
+func newTamplateFloor(main_text string) *Node {
+
+template :=
+`
+
+    <hr>
+    <a href="index.html">HOME</a><br>
+    <p>Title | 2026</p>
+
+</body>
+</html>
+`
+	newtemplate := strings.ReplaceAll(template, "Title", main_text)
+	nodeTemplateFloor := &NodeTemplateFloor{newtemplate}
+	return &Node{
+		NodeType: TypeTemplateFloor,
+		NodeTemplateFloor: nodeTemplateFloor }
 }
 
 func newTextLine(line_text string) *Node {
@@ -166,7 +197,7 @@ func newTextLine(line_text string) *Node {
 	nodeTextLine := &NodeTextLine{LineText: line_text}
 	return &Node{
 		NodeType: TypeTextLine,
-		NodeTextLine: nodeTextLine}
+		NodeTextLine: nodeTextLine }
 }
 
 // floorTemplate :=
