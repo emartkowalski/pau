@@ -97,15 +97,12 @@ func (l *Lexer) NextToken() Token {
 
 	// handle identifiers
 	// Обработка идентификаторов
-
 	startPos := l.pos
-	for l.pos < len(l.src) && ch != '\n' {
+	for l.pos < len(l.src) && l.src[l.pos] != '\n' {
 		l.advance()
 	}
 
-	// val := l.CurrentLine(l.line)
-
-	val := l.src[startPos:l.pos]
+	val := strings.TrimSpace(l.src[startPos:l.pos])
 	return Token{
 		Type: TokenText,
 		Val:  val,

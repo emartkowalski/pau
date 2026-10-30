@@ -38,28 +38,35 @@ func (n *Node) String() string {
 
 	switch n.NodeType {
 	case TypeMainHead:
-		// return fmt.Sprintf("%s", n.NodeMainHead.Main_text)
-		return n.NodeMainHead.Main_text
+		return n.NodeMainHead.MainText
+	case TypeTextLine:
+		return n.NodeTextLine.LineText
 	default:
 		return ""
 	}
 }
 
-type NodeKind int
 
+type NodeKind int
 const (
 	TypeMainHead NodeKind = iota
-	
-)
+	TypeTextLine
+)	
 
 type NodeMainHead struct {
-	Main_text string
+	MainText string
 }
+
+type NodeTextLine struct {
+	LineText string
+}
+
 
 type Node struct {
 	NodeType    NodeKind
 
 	NodeMainHead *NodeMainHead
+	NodeTextLine *NodeTextLine
 
 }
 
@@ -67,9 +74,16 @@ type Node struct {
 func (p *Parser) Parse() ([]*Node, error) {
 	var nodes []*Node
 
+	if p.curTok.Type == TokenText {
+		main_head := p.curTok.Val
+		p.nextToken()
+		p.skipNewLine()
+		nodes = append(nodes, newMainHead(main_head))
+	}
+
 	for p.curTok.Type != TokenEOF {
 
-		p.skipNewLine()
+		// p.skipNewLine()
 		if p.curTok.Type == TokenEOF {
 			break
 		}
@@ -111,10 +125,10 @@ func (p *Parser) parseNode() (*Node, error) {
 
 	switch p.curTok.Type {
 	case TokenText:
-		text := p.curTok.Val
+		lineOfText := p.curTok.Val
 		p.nextToken()
-
-		return newMainHead(text), nil
+		p.skipNewLine()
+		return newTextLine(lineOfText), nil
 
 	default:
 		return nil, p.errorf("unknown node type %q", p.curTok.Val)
@@ -122,7 +136,44 @@ func (p *Parser) parseNode() (*Node, error) {
 }
 
 func newMainHead(main_text string) *Node {
+template :=
+`<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body leftmargin="250" rightmargin="250" bgcolor="#d3d3d3">
+
+    <h1 align="center">Title</h1>
+    <hr>
+`
+	newtemplate := strings.ReplaceAll(template, "Title", main_text)
+
+	newMainHead := &NodeMainHead{MainText: newtemplate}
 	return &Node{
 		NodeType: TypeMainHead,
-		NodeMainHead: &NodeMainHead{Main_text: main_text}}
+		NodeMainHead: newMainHead}
 }
+
+func newTextLine(line_text string) *Node {
+
+	nodeTextLine := &NodeTextLine{LineText: line_text}
+	return &Node{
+		NodeType: TypeTextLine,
+		NodeTextLine: nodeTextLine}
+}
+
+// floorTemplate :=
+// `   <hr>
+//     <a href="index.html">HOME</a><br>
+//     <p>Personal Wiki | 2026</p>
+
+// </body>
+// </html>
+// `
