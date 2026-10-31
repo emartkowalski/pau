@@ -43,6 +43,8 @@ func (n *Node) String() string {
 		return n.NodeTemplateFloor.Template
 	case TypeTextLine:
 		return n.NodeTextLine.LineText
+	case TypeNewLine:
+		return "\n"
 	default:
 		return ""
 	}
@@ -52,8 +54,10 @@ func (n *Node) String() string {
 type NodeKind int
 const (
 	TypeMainHead NodeKind = iota
-	TypeTextLine
 	TypeTemplateFloor
+
+	TypeTextLine
+	TypeNewLine
 )	
 
 type NodeMainHead struct {
@@ -68,6 +72,10 @@ type NodeTextLine struct {
 	LineText string
 }
 
+type NodeNewLine struct {
+	NewLine string
+}
+
 
 type Node struct {
 	NodeType    NodeKind
@@ -75,6 +83,7 @@ type Node struct {
 	NodeMainHead 	  *NodeMainHead
 	NodeTextLine 	  *NodeTextLine
 	NodeTemplateFloor *NodeTemplateFloor
+	NodeNewLine 	  *NodeNewLine
 
 }
 
@@ -138,9 +147,15 @@ func (p *Parser) parseNode() (*Node, error) {
 	case TokenText:
 		lineOfText := p.curTok.Val
 		p.nextToken()
-		p.skipNewLine()
-		return newTextLine(lineOfText), nil
 
+		// for p.curTok.Type == TokenNewLine {
+		// 	return newNewLine()
+		// }
+
+		return newTextLine(lineOfText), nil
+	case TokenNewLine:
+		p.nextToken()
+		return newNewLine(), nil
 	default:
 		return nil, p.errorf("unknown node type %q", p.curTok.Val)
 	}
@@ -198,4 +213,11 @@ func newTextLine(line_text string) *Node {
 	return &Node{
 		NodeType: TypeTextLine,
 		NodeTextLine: nodeTextLine }
+}
+
+func newNewLine() *Node {
+	return &Node{
+		NodeType: TypeNewLine,
+		NodeNewLine: &NodeNewLine{NewLine: "\n"},
+	}
 }
