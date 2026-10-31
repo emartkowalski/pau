@@ -27,10 +27,10 @@ func main() {
 		doWork(subcomandArgs)
 	case "-h", "-help", "help":
 		fmt.Println("=== help ===")
-		fmt.Printf("run 'example.p'")
+		fmt.Println("run 'example.p'")
 		os.Exit(0)
 	default:
-		fmt.Println("no more commands only run")
+		fmt.Printf("uknown command %q\n", subcomand)
 		os.Exit(1)
 	}
 
@@ -61,30 +61,4 @@ func doWork(filepath string) {
 /*
 `
 
-*/
-
-
-/*
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Personal Wiki</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-    </style>
-</head>
-<body leftmargin="250" rightmargin="250" bgcolor="#d3d3d3">
-
-    <h1 align="center">Personal Wiki</h1>
-    <hr>
-
-    <hr>
-    <a href="index.html">HOME</a><br>
-    <p>Personal Wiki | 2026</p>
-
-</body>
-</html>
 */

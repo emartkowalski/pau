@@ -93,9 +93,9 @@ func (p *Parser) Parse() ([]*Node, error) {
 	for p.curTok.Type != TokenEOF {
 
 		// p.skipNewLine()
-		if p.curTok.Type == TokenEOF {
-			break
-		}
+		//if p.curTok.Type == TokenEOF {
+		//	break
+		//}
 
 		node, err := p.parseNode()
 
@@ -199,12 +199,3 @@ func newTextLine(line_text string) *Node {
 		NodeType: TypeTextLine,
 		NodeTextLine: nodeTextLine }
 }
-
-// floorTemplate :=
-// `   <hr>
-//     <a href="index.html">HOME</a><br>
-//     <p>Personal Wiki | 2026</p>
-
-// </body>
-// </html>
-// `
