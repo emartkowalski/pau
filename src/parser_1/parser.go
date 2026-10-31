@@ -42,14 +42,11 @@ func (n *Node) String() string {
 	case TypeTemplateFloor:
 		return n.NodeTemplateFloor.Template
 	case TypeTextLine:
-		return n.NodeTextLine.LineText
-	case TypeNewLine:
-		return "\n"
+		return "<p>" + n.NodeTextLine.LineText + "</p>"
 	default:
 		return ""
 	}
 }
-
 
 type NodeKind int
 const (
@@ -57,7 +54,6 @@ const (
 	TypeTemplateFloor
 
 	TypeTextLine
-	TypeNewLine
 )	
 
 type NodeMainHead struct {
@@ -72,18 +68,12 @@ type NodeTextLine struct {
 	LineText string
 }
 
-type NodeNewLine struct {
-	NewLine string
-}
-
-
 type Node struct {
 	NodeType    NodeKind
 
 	NodeMainHead 	  *NodeMainHead
 	NodeTextLine 	  *NodeTextLine
 	NodeTemplateFloor *NodeTemplateFloor
-	NodeNewLine 	  *NodeNewLine
 
 }
 
@@ -100,11 +90,6 @@ func (p *Parser) Parse() ([]*Node, error) {
 	}
 
 	for p.curTok.Type != TokenEOF {
-
-		// p.skipNewLine()
-		//if p.curTok.Type == TokenEOF {
-		//	break
-		//}
 
 		node, err := p.parseNode()
 
@@ -145,17 +130,23 @@ func (p *Parser) parseNode() (*Node, error) {
 
 	switch p.curTok.Type {
 	case TokenText:
-		lineOfText := p.curTok.Val
-		p.nextToken()
+		var sliceOfString string
 
-		// for p.curTok.Type == TokenNewLine {
-		// 	return newNewLine()
-		// }
+		for p.curTok.Type != TokenEOF {
+			switch p.curTok.Type {
+			case TokenText:
+				lineOfText := p.curTok.Val
+				p.nextToken()
+				sliceOfString = sliceOfString + lineOfText
+			case TokenNewLine:
+				p.nextToken()
+				sliceOfString = sliceOfString + "<br>\n"
+			default:
+				break
+			}
+		}
 
-		return newTextLine(lineOfText), nil
-	case TokenNewLine:
-		p.nextToken()
-		return newNewLine(), nil
+		return newTextLine(sliceOfString), nil
 	default:
 		return nil, p.errorf("unknown node type %q", p.curTok.Val)
 	}
@@ -213,11 +204,4 @@ func newTextLine(line_text string) *Node {
 	return &Node{
 		NodeType: TypeTextLine,
 		NodeTextLine: nodeTextLine }
-}
-
-func newNewLine() *Node {
-	return &Node{
-		NodeType: TypeNewLine,
-		NodeNewLine: &NodeNewLine{NewLine: "\n"},
-	}
 }
