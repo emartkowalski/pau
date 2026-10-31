@@ -140,7 +140,7 @@ func (p *Parser) parseNode() (*Node, error) {
 				sliceOfString = sliceOfString + lineOfText
 			case TokenNewLine:
 				p.nextToken()
-				sliceOfString = sliceOfString + "<br>\n"
+				sliceOfString = sliceOfString + "<br>\n    "
 			default:
 				break
 			}
