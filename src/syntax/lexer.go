@@ -96,7 +96,7 @@ func (l *Lexer) NextToken() Token {
     		l.advance()
     	}
 
-		val := l.src[startPos:l.pos]
+		val := l.src[startPos:l.pos-1]
 		return Token{Type: TokenTag, Val: "<" + val + ">", Line: l.line, Col: startCol}
 
 	case '|':

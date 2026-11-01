@@ -72,10 +72,11 @@ template :=
 		return strings.ReplaceAll(template, "Title", n.NodeTemplateFloor.Template)
 
 	case TypeHead2:
-		return "	" + "<h2>" + n.NodeHead2.Line + "</h2>\n\n"
-
+		return "	" + "<h2>" + n.NodeHead2.Line + "</h2>\n"
+	case TypeLi:
+		return "	" + "<li>" + n.NodeLi.Line + "</li>\n"
 	case TypeTextLine:
-		return "<p>" + n.NodeTextLine.Line + "</p>"
+		return "	" + "<p>" + n.NodeTextLine.Line + "</p>"
 	default:
 		return ""
 	}
@@ -87,6 +88,7 @@ const (
 	TypeTemplateFloor
 
 	TypeHead2
+	TypeLi
 	TypeTextLine
 )	
 
@@ -102,6 +104,10 @@ type NodeHead2 struct {
 	Line string
 }
 
+type NodeLi struct {
+	Line string
+}
+
 type NodeTextLine struct {
 	Line string
 }
@@ -113,6 +119,7 @@ type Node struct {
 	NodeTemplateFloor *NodeTemplateFloor
 
 	NodeHead2 		  *NodeHead2
+	NodeLi 			  *NodeLi
 	NodeTextLine 	  *NodeTextLine
 
 }
@@ -173,14 +180,39 @@ func (p *Parser) parseNode() (*Node, error) {
 	case TokenTag:
 		lineOfText := p.curTok.Val
 		p.nextToken()
-		if lineOfText != "<h2>" && p.curTok.Type != TokenText {
-			return nil, p.errorf("expect tag, got %q", p.curTok.Val)
+
+		switch lineOfText {
+		case "<h2>":
+			if lineOfText != "<h2>" && p.curTok.Type != TokenText {
+				return nil, p.errorf("expected tag, got %q", p.curTok.Val)
+			}
+
+			text := p.curTok.Val
+			p.nextToken()
+			p.skipNewLine()
+			return newHead2(strings.TrimSpace(text)), nil
+		// case "<ul>":
+		// 	p.nextToken()
+
+		// 	for p.curTok.Val != "<h2>" || p.curTok.Type == TokenEOF {
+
+		// 	}
+
+		// 	return 
+		case "<li>":
+
+		if p.curTok.Type != TokenText {
+			return nil, p.errorf("expect text, got %q", p.curTok.Val)
 		}
 
 		text := p.curTok.Val
 		p.nextToken()
 		p.skipNewLine()
-		return newHead2(strings.TrimSpace(text)), nil
+
+		return newLi(text), nil
+		default:
+			return nil, p.errorf("there is no tag like this one %q", lineOfText)
+		}
 
 	case TokenText:
 		var sliceOfString []byte
@@ -225,6 +257,13 @@ func newHead2(line_text string) *Node {
 	return &Node{
 		NodeType: TypeHead2,
 		NodeHead2: &NodeHead2{Line: line_text},
+	}
+}
+
+func newLi(line_text string) *Node {
+	return &Node{
+		NodeType: TypeLi,
+		NodeLi: &NodeLi{Line: line_text},
 	}
 }
 
