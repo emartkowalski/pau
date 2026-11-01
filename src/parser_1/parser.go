@@ -130,23 +130,23 @@ func (p *Parser) parseNode() (*Node, error) {
 
 	switch p.curTok.Type {
 	case TokenText:
-		var sliceOfString string
+		var sliceOfString []byte
 
 		for p.curTok.Type != TokenEOF {
 			switch p.curTok.Type {
 			case TokenText:
 				lineOfText := p.curTok.Val
 				p.nextToken()
-				sliceOfString = sliceOfString + lineOfText
+				sliceOfString = append(sliceOfString, lineOfText...)
 			case TokenNewLine:
 				p.nextToken()
-				sliceOfString = sliceOfString + "<br>\n    "
+				sliceOfString = append(sliceOfString, []byte("<br>\n    ")...)
 			default:
-				break
+				p.nextToken()
 			}
 		}
-
-		return newTextLine(sliceOfString), nil
+		text := string(sliceOfString)
+		return newTextLine(text), nil
 	default:
 		return nil, p.errorf("unknown node type %q", p.curTok.Val)
 	}
