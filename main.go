@@ -1,9 +1,11 @@
 package main
 
 import (
+	"path/filepath"
+	"strings"
 	"fmt"
-	"pau/src/parser_1"
 	"os"
+	"pau/src/syntax"
 )
 
 func main() {
@@ -24,7 +26,7 @@ func main() {
 		}
 
 		subcomandArgs := os.Args[2]
-		doWork(subcomandArgs)
+		generate_HTML_File(subcomandArgs)
 	case "-h", "-help", "help":
 		fmt.Println("=== help ===")
 		fmt.Println("run 'example.p'")
@@ -36,16 +38,15 @@ func main() {
 
 }
 
-func doWork(filepath string) {
+func generate_HTML_File(filepathPau string) {
 
-	filePath := filepath
-	content, err := os.ReadFile(filePath)
+	content, err := os.ReadFile(filepathPau)
 	if err != nil {
 		fmt.Printf("read file failed: %v\n", err)
 		os.Exit(1)
 	}
-	lexer := parser_1.NewLexer(string(content))
-	parser := parser_1.NewParser(lexer, filePath)
+	lexer := syntax.NewLexer(string(content))
+	parser := syntax.NewParser(lexer, filepathPau)
 	nodes, err := parser.Parse()
 	if err != nil {
 		fmt.Println("#pau")
@@ -53,9 +54,28 @@ func doWork(filepath string) {
 		os.Exit(1)
 	}
 
-	for _, node := range nodes {
-		fmt.Print(node.String())
+	// for _, node := range nodes {
+	// 	fmt.Print(node.String())
+	// }
+	ext := filepath.Ext(filepathPau)
+	newfilepathPau := strings.TrimSuffix(filepathPau, ext) + ".html"
+
+	file, err := os.Create(newfilepathPau)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
+	defer file.Close()
+
+	for _, node := range nodes {
+		_, err := file.WriteString(node.String())
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	}
+	fmt.Printf("done! %q\n", newfilepathPau)
+
 }
 
 /*
