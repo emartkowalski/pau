@@ -38,9 +38,29 @@ func (n *Node) String() string {
 
 	switch n.NodeType {
 	case TypeMainHead:
-		return n.NodeMainHead.Template
+template :=
+`<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body leftmargin="250" rightmargin="250" bgcolor="#d3d3d3">
+
+    <h1 align="center">Title</h1>
+    <hr>
+
+`
+		return strings.ReplaceAll(template, "Title", n.NodeMainHead.Template)	
+
 	case TypeTemplateFloor:
 		return n.NodeTemplateFloor.Template
+
 	case TypeTextLine:
 		return "<p>" + n.NodeTextLine.LineText + "</p>"
 	default:
@@ -153,27 +173,8 @@ func (p *Parser) parseNode() (*Node, error) {
 }
 
 func newMainHead(main_text string) *Node {
-template :=
-`<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-    </style>
-</head>
-<body leftmargin="250" rightmargin="250" bgcolor="#d3d3d3">
 
-    <h1 align="center">Title</h1>
-    <hr>
-
-`
-	newtemplate := strings.ReplaceAll(template, "Title", main_text)
-
-	newMainHead := &NodeMainHead{Template: newtemplate}
+	newMainHead := &NodeMainHead{Template: main_text}
 	return &Node{
 		NodeType: TypeMainHead,
 		NodeMainHead: newMainHead}
