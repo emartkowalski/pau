@@ -61,8 +61,11 @@ template :=
 	case TypeTemplateFloor:
 		return n.NodeTemplateFloor.Template
 
+	case TypeHead2:
+		return "	" + "<h2>" + n.NodeHead2.Line + "</h2>\n"
+
 	case TypeTextLine:
-		return "<p>" + n.NodeTextLine.LineText + "</p>"
+		return "<p>" + n.NodeTextLine.Line + "</p>"
 	default:
 		return ""
 	}
@@ -73,6 +76,7 @@ const (
 	TypeMainHead NodeKind = iota
 	TypeTemplateFloor
 
+	TypeHead2
 	TypeTextLine
 )	
 
@@ -84,16 +88,22 @@ type NodeTemplateFloor struct {
 	Template string
 }
 
+type NodeHead2 struct {
+	Line string
+}
+
 type NodeTextLine struct {
-	LineText string
+	Line string
 }
 
 type Node struct {
 	NodeType    NodeKind
 
 	NodeMainHead 	  *NodeMainHead
-	NodeTextLine 	  *NodeTextLine
 	NodeTemplateFloor *NodeTemplateFloor
+
+	NodeHead2 		  *NodeHead2
+	NodeTextLine 	  *NodeTextLine
 
 }
 
@@ -108,6 +118,7 @@ func (p *Parser) Parse() ([]*Node, error) {
 		p.skipNewLine()
 		nodes = append(nodes, newMainHead(HeadTitle))
 	}
+	p.skipNewLine()
 
 	for p.curTok.Type != TokenEOF {
 
@@ -149,6 +160,18 @@ func (p *Parser) errorf(format string, args ...any) error {
 func (p *Parser) parseNode() (*Node, error) {
 
 	switch p.curTok.Type {
+	case TokenTag:
+		lineOfText := p.curTok.Val
+		p.nextToken()
+		if lineOfText != "<h2>" && p.curTok.Type != TokenText {
+			return nil, p.errorf("expect tag, got %q", p.curTok.Val)
+		}
+
+		text := p.curTok.Val
+		p.nextToken()
+		p.skipNewLine()
+		return newHead2(strings.TrimSpace(text)), nil
+
 	case TokenText:
 		var sliceOfString []byte
 
@@ -158,6 +181,7 @@ func (p *Parser) parseNode() (*Node, error) {
 				lineOfText := p.curTok.Val
 				p.nextToken()
 				sliceOfString = append(sliceOfString, lineOfText...)
+
 			case TokenNewLine:
 				p.nextToken()
 				sliceOfString = append(sliceOfString, []byte("<br>\n    ")...)
@@ -199,9 +223,17 @@ template :=
 		NodeTemplateFloor: nodeTemplateFloor }
 }
 
+func newHead2(line_text string) *Node {
+
+	return &Node{
+		NodeType: TypeHead2,
+		NodeHead2: &NodeHead2{Line: line_text},
+	}
+}
+
 func newTextLine(line_text string) *Node {
 
-	nodeTextLine := &NodeTextLine{LineText: line_text}
+	nodeTextLine := &NodeTextLine{Line: line_text}
 	return &Node{
 		NodeType: TypeTextLine,
 		NodeTextLine: nodeTextLine }

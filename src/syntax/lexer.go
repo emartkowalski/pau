@@ -86,10 +86,19 @@ func (l *Lexer) NextToken() Token {
 
 	case '<':
 		l.advance()
-		return Token{Type: TokenOp, Val: "<", Line: l.line, Col: startCol}
-	case '>':
-		l.advance()	
-		return Token{Type: TokenCl, Val: ">", Line: l.line, Col: startCol}
+		startPos := l.pos 
+
+		for l.pos < len(l.src) && l.src[l.pos] != '>' && l.src[l.pos] != '\n' {
+			l.advance()
+		}
+
+		if l.pos < len(l.src) && l.src[l.pos] == '>' {
+    		l.advance()
+    	}
+
+		val := l.src[startPos:l.pos]
+		return Token{Type: TokenTag, Val: "<" + val + ">", Line: l.line, Col: startCol}
+
 	case '|':
 		l.advance()
 		return Token{Type: TokenAnd, Val: "|", Line: l.line, Col: startCol}
