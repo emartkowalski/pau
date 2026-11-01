@@ -59,10 +59,20 @@ template :=
 		return strings.ReplaceAll(template, "Title", n.NodeMainHead.Template)	
 
 	case TypeTemplateFloor:
-		return n.NodeTemplateFloor.Template
+template :=
+`
+
+    <hr>
+    <a href="index.html">HOME</a><br>
+    <p>Title | 2026</p>
+
+</body>
+</html>
+`
+		return strings.ReplaceAll(template, "Title", n.NodeTemplateFloor.Template)
 
 	case TypeHead2:
-		return "	" + "<h2>" + n.NodeHead2.Line + "</h2>\n"
+		return "	" + "<h2>" + n.NodeHead2.Line + "</h2>\n\n"
 
 	case TypeTextLine:
 		return "<p>" + n.NodeTextLine.Line + "</p>"
@@ -205,26 +215,13 @@ func newMainHead(main_text string) *Node {
 }
 
 func newTamplateFloor(main_text string) *Node {
-
-template :=
-`
-
-    <hr>
-    <a href="index.html">HOME</a><br>
-    <p>Title | 2026</p>
-
-</body>
-</html>
-`
-	newtemplate := strings.ReplaceAll(template, "Title", main_text)
-	nodeTemplateFloor := &NodeTemplateFloor{newtemplate}
+	nodeTemplateFloor := &NodeTemplateFloor{main_text}
 	return &Node{
 		NodeType: TypeTemplateFloor,
 		NodeTemplateFloor: nodeTemplateFloor }
 }
 
 func newHead2(line_text string) *Node {
-
 	return &Node{
 		NodeType: TypeHead2,
 		NodeHead2: &NodeHead2{Line: line_text},
@@ -232,7 +229,6 @@ func newHead2(line_text string) *Node {
 }
 
 func newTextLine(line_text string) *Node {
-
 	nodeTextLine := &NodeTextLine{Line: line_text}
 	return &Node{
 		NodeType: TypeTextLine,
