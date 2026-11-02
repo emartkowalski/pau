@@ -178,64 +178,73 @@ func (p *Parser) parseNode() (*Node, error) {
 
 	switch p.curTok.Type {
 	case TokenTag:
-		lineOfText := p.curTok.Val
-		p.nextToken()
+		valOfTag := p.curTok.Val
 
-		switch lineOfText {
+		switch valOfTag {
 		case "<h2>":
-			if lineOfText != "<h2>" && p.curTok.Type != TokenText {
-				return nil, p.errorf("expected tag, got %q", p.curTok.Val)
-			}
-
-			text := p.curTok.Val
-			p.nextToken()
-			p.skipNewLine()
-			return newHead2(strings.TrimSpace(text)), nil
-		// case "<ul>":
-		// 	p.nextToken()
-
-		// 	for p.curTok.Val != "<h2>" || p.curTok.Type == TokenEOF {
-
-		// 	}
-
-		// 	return 
+			return p.parseHead2(valOfTag)
 		case "<li>":
-
-		if p.curTok.Type != TokenText {
-			return nil, p.errorf("expect text, got %q", p.curTok.Val)
-		}
-
-		text := p.curTok.Val
-		p.nextToken()
-		p.skipNewLine()
-
-		return newLi(text), nil
+			return p.parseLi()
 		default:
-			return nil, p.errorf("there is no tag like this one %q", lineOfText)
+			return nil, p.errorf("there is no tag like this one %q", p.curTok.Val)
 		}
 
 	case TokenText:
-		var sliceOfString []byte
-
-		for p.curTok.Type != TokenEOF {
-			switch p.curTok.Type {
-			case TokenText:
-				lineOfText := p.curTok.Val
-				p.nextToken()
-				sliceOfString = append(sliceOfString, lineOfText...)
-
-			case TokenNewLine:
-				p.nextToken()
-				sliceOfString = append(sliceOfString, []byte("<br>\n    ")...)
-			default:
-				p.nextToken()
-			}
-		}
-		text := string(sliceOfString)
-		return newTextLine(text), nil
+		return p.parseText()
 	default:
 		return nil, p.errorf("unknown node type %q", p.curTok.Val)
 	}
+}
+
+func (p *Parser) parseHead2(valOfTag string) (*Node, error) {
+
+	p.nextToken()
+	if valOfTag != "<h2>" && p.curTok.Type != TokenText {
+		return nil, p.errorf("expected tag, got %q", p.curTok.Val)
+	}
+
+	text := p.curTok.Val
+	p.nextToken()
+	p.skipNewLine()
+	
+	return newHead2(strings.TrimSpace(text)), nil
+}
+
+func (p *Parser) parseLi() (*Node, error) {
+	p.nextToken()
+
+	if p.curTok.Type != TokenText {
+		return nil, p.errorf("expect text, got %q", p.curTok.Val)
+	}
+
+	text := p.curTok.Val
+	p.nextToken()
+	p.skipNewLine()
+
+	return newLi(text), nil
+}
+
+func (p *Parser) parseText() (*Node, error) {
+
+	var sliceOfString []byte
+
+	for p.curTok.Type != TokenEOF {
+		switch p.curTok.Type {
+		case TokenText:
+			lineOfText := p.curTok.Val
+			p.nextToken()
+			sliceOfString = append(sliceOfString, lineOfText...)
+
+		case TokenNewLine:
+			p.nextToken()
+			sliceOfString = append(sliceOfString, []byte("<br>\n    ")...)
+		default:
+			p.nextToken()
+		}
+	}
+	text := string(sliceOfString)
+
+	return newTextLine(text), nil
 }
 
 func newMainHead(main_text string) *Node {
