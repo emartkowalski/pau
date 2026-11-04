@@ -67,8 +67,7 @@ template :=
     <p>Title | 2026</p>
 
 </body>
-</html>
-`
+</html>`
 		return strings.ReplaceAll(template, "Title", n.NodeTemplateFloor.Template)
 
 	case TypeHead2:
