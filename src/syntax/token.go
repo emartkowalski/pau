@@ -17,9 +17,7 @@ const (
 
 	TokenNewLine 				  // '\n'
 
-	TokenTag
-	// TokenOp					      // <
-	// TokenCl 					  // >
+	TokenTag 					  // <>
 	TokenAnd 				   	  // |
 
 )

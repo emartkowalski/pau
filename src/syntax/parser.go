@@ -177,11 +177,10 @@ func (p *Parser) parseNode() (*Node, error) {
 
 	switch p.curTok.Type {
 	case TokenTag:
-		valOfTag := p.curTok.Val
 
-		switch valOfTag {
+		switch p.curTok.Val {
 		case "<h2>":
-			return p.parseHead2(valOfTag)
+			return p.parseHead2(p.curTok.Val)
 		case "<li>":
 			return p.parseLi()
 		default:
@@ -191,6 +190,9 @@ func (p *Parser) parseNode() (*Node, error) {
 	case TokenText:
 		return p.parseText()
 	default:
+		if p.curTok.Type == TokenIllegal {
+			return nil, p.errorf("expect tag, got %q", p.curTok.Val)
+		}		
 		return nil, p.errorf("unknown node type %q", p.curTok.Val)
 	}
 }

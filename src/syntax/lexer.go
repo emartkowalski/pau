@@ -92,6 +92,10 @@ func (l *Lexer) NextToken() Token {
 			l.advance()
 		}
 
+		if l.pos >= len(l.src) || l.src[l.pos] != '>' {
+			return Token{Type: TokenIllegal, Val: l.src[startPos-1:l.pos], Line: l.line, Col: startCol}
+    	}
+
 		if l.pos < len(l.src) && l.src[l.pos] == '>' {
     		l.advance()
     	}
