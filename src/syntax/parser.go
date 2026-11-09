@@ -71,9 +71,11 @@ template :=
 		return strings.ReplaceAll(template, "Title", n.NodeTemplateFloor.Template)
 
 	case TypeHead2:
-		return "	" + "<h2>" + n.NodeHead2.Line + "</h2>\n"
+		return "	" + "<h2>" + n.NodeHead2.TagTitle + "</h2>\n"
+	// case TypeUl:
+	// 	return
 	case TypeLi:
-		return "	" + "<li>" + n.NodeLi.Line + "</li>\n"
+		return "	" + "<li>" + n.NodeLi.TagTitle + "</li>\n"
 	case TypeTextLine:
 		return "	" + "<p>" + n.NodeTextLine.Line + "</p>"
 	default:
@@ -87,6 +89,7 @@ const (
 	TypeTemplateFloor
 
 	TypeHead2
+	TypeUl
 	TypeLi
 	TypeTextLine
 )	
@@ -100,11 +103,15 @@ type NodeTemplateFloor struct {
 }
 
 type NodeHead2 struct {
-	Line string
+	TagTitle string
 }
 
+// type NodeUl struct {
+// 	UlTextString 	string
+// }
+
 type NodeLi struct {
-	Line string
+	TagTitle string
 }
 
 type NodeTextLine struct {
@@ -118,6 +125,7 @@ type Node struct {
 	NodeTemplateFloor *NodeTemplateFloor
 
 	NodeHead2 		  *NodeHead2
+	// NodeUl 			  *NodeUl
 	NodeLi 			  *NodeLi
 	NodeTextLine 	  *NodeTextLine
 
@@ -128,14 +136,17 @@ func (p *Parser) Parse() ([]*Node, error) {
 	var nodes []*Node
 	var HeadTitle string
 
+	p.skipNewLine()
 	if p.curTok.Type == TokenText {
 		HeadTitle = p.curTok.Val
 		p.nextToken()
 		p.skipNewLine()
 		nodes = append(nodes, newMainHead(HeadTitle))
+	} else {
+		return nil, p.errorf("expected for text, got %q", p.curTok.Val)
 	}
-	p.skipNewLine()
 
+	p.skipNewLine()
 	for p.curTok.Type != TokenEOF {
 
 		node, err := p.parseNode()
@@ -180,7 +191,9 @@ func (p *Parser) parseNode() (*Node, error) {
 
 		switch p.curTok.Val {
 		case "<h2>":
-			return p.parseHead2(p.curTok.Val)
+			return p.parseHead2()
+		// case "<ul>":
+		// 	return p.parseUl()
 		case "<li>":
 			return p.parseLi()
 		default:
@@ -197,10 +210,10 @@ func (p *Parser) parseNode() (*Node, error) {
 	}
 }
 
-func (p *Parser) parseHead2(valOfTag string) (*Node, error) {
-
+func (p *Parser) parseHead2() (*Node, error) {
 	p.nextToken()
-	if valOfTag != "<h2>" && p.curTok.Type != TokenText {
+
+	if p.curTok.Type != TokenText {
 		return nil, p.errorf("expected tag, got %q", p.curTok.Val)
 	}
 
@@ -210,6 +223,41 @@ func (p *Parser) parseHead2(valOfTag string) (*Node, error) {
 	
 	return newHead2(strings.TrimSpace(text)), nil
 }
+
+// func (p *Parser) parseUl() (*Node, error) {
+// 	p.nextToken()
+// 	p.skipNewLine()
+
+// 	&Ul := new(NodeUl)
+// 	var UlString string
+
+// 	switch p.curTok.Type {
+// 	case TokenTag:
+
+// 		switch p.curTok.Val {
+// 		case "<h2>":
+// 			return nil, p.errorf("you can't use <h2> inside of <ul>")
+// 		case "<ul>":
+// 			return nil, p.errorf("you can't use this tag twise '<ul>'")
+// 		case "<li>":
+// 			node, err := p.parseLi()
+// 			if err != nil {
+// 				return p.errorf(err)
+// 			}
+// 			UlString = UlString + node.String()
+// 		default:
+// 			return nil, p.errorf("there is no tag like this one %q", p.curTok.Val)
+// 		}
+
+// 	case TokenText:
+// 		UlString = UlString + p.parseText()
+// 	default:
+// 		if p.curTok.Type == TokenIllegal {
+// 			return nil, p.errorf("expect tag, got %q", p.curTok.Val)
+// 		}		
+// 		return nil, p.errorf("unknown node type %q", p.curTok.Val)
+// 	}
+// }
 
 func (p *Parser) parseLi() (*Node, error) {
 	p.nextToken()
@@ -263,17 +311,17 @@ func newTamplateFloor(main_text string) *Node {
 		NodeTemplateFloor: nodeTemplateFloor }
 }
 
-func newHead2(line_text string) *Node {
+func newHead2(tagTitle string) *Node {
 	return &Node{
 		NodeType: TypeHead2,
-		NodeHead2: &NodeHead2{Line: line_text},
+		NodeHead2: &NodeHead2{TagTitle: tagTitle},
 	}
 }
 
-func newLi(line_text string) *Node {
+func newLi(tagTitle string) *Node {
 	return &Node{
 		NodeType: TypeLi,
-		NodeLi: &NodeLi{Line: line_text},
+		NodeLi: &NodeLi{TagTitle: tagTitle},
 	}
 }
 
