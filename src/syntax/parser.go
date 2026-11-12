@@ -72,8 +72,25 @@ template :=
 
 	case TypeHead2:
 		return "	" + "<h2>" + n.NodeHead2.TagTitle + "</h2>\n"
-	// case TypeUl:
-	// 	return
+	case TypeUl:
+		if n.NodeUl.Nodes == nil {
+			return "\n"
+		}
+		var sb strings.Builder
+
+		sb.WriteString("<ul>\n")
+
+		for _, node := range n.NodeUl.Nodes {
+
+			switch node.NodeType {
+			case TypeLi:
+				sb.WriteString(node.String())
+			}
+		}
+
+		sb.WriteString("</ul>\n")
+		return sb.String()
+
 	case TypeLi:
 		return "	" + "<li>" + n.NodeLi.TagTitle + "</li>\n"
 	case TypeTextLine:
@@ -106,9 +123,9 @@ type NodeHead2 struct {
 	TagTitle string
 }
 
-// type NodeUl struct {
-// 	UlTextString 	string
-// }
+type NodeUl struct {
+	Nodes []*Node
+}
 
 type NodeLi struct {
 	TagTitle string
@@ -125,7 +142,7 @@ type Node struct {
 	NodeTemplateFloor *NodeTemplateFloor
 
 	NodeHead2 		  *NodeHead2
-	// NodeUl 			  *NodeUl
+	NodeUl 			  *NodeUl
 	NodeLi 			  *NodeLi
 	NodeTextLine 	  *NodeTextLine
 
@@ -192,12 +209,12 @@ func (p *Parser) parseNode() (*Node, error) {
 		switch p.curTok.Val {
 		case "<h2>":
 			return p.parseHead2()
-		// case "<ul>":
-		// 	return p.parseUl()
+		case "<ul>":
+			return p.parseUl()
 		case "<li>":
 			return p.parseLi()
 		default:
-			return nil, p.errorf("there is no tag like this one %q", p.curTok.Val)
+			return nil, p.errorf("Error parseNode(): there is no tag like this one %q", p.curTok.Val)
 		}
 
 	case TokenText:
@@ -224,40 +241,40 @@ func (p *Parser) parseHead2() (*Node, error) {
 	return newHead2(strings.TrimSpace(text)), nil
 }
 
-// func (p *Parser) parseUl() (*Node, error) {
-// 	p.nextToken()
-// 	p.skipNewLine()
+func (p *Parser) parseUl() (*Node, error) {
+	p.nextToken()
+	p.skipNewLine()
 
-// 	&Ul := new(NodeUl)
-// 	var UlString string
+	Ul := new(NodeUl)
 
-// 	switch p.curTok.Type {
-// 	case TokenTag:
+	for p.curTok.Val != "</ul>" || p.curTok.Type != TokenEOF {
+		switch p.curTok.Type {
+		case TokenTag:
 
-// 		switch p.curTok.Val {
-// 		case "<h2>":
-// 			return nil, p.errorf("you can't use <h2> inside of <ul>")
-// 		case "<ul>":
-// 			return nil, p.errorf("you can't use this tag twise '<ul>'")
-// 		case "<li>":
-// 			node, err := p.parseLi()
-// 			if err != nil {
-// 				return p.errorf(err)
-// 			}
-// 			UlString = UlString + node.String()
-// 		default:
-// 			return nil, p.errorf("there is no tag like this one %q", p.curTok.Val)
-// 		}
+			switch p.curTok.Val {
+			case "<li>":
+				node, err := p.parseLi()
+				if err != nil {
+					return nil, p.errorf("%v", err)
+				}
+				Ul.Nodes = append(Ul.Nodes, node)
+			case "</ul>":
+				p.nextToken()
+				p.skipNewLine()
+				return newUl(Ul.Nodes), nil
+			default:
+				return nil, p.errorf("there is no tag inside <ul>")
+			}
 
-// 	case TokenText:
-// 		UlString = UlString + p.parseText()
-// 	default:
-// 		if p.curTok.Type == TokenIllegal {
-// 			return nil, p.errorf("expect tag, got %q", p.curTok.Val)
-// 		}		
-// 		return nil, p.errorf("unknown node type %q", p.curTok.Val)
-// 	}
-// }
+		case TokenText:
+			return nil, p.errorf("inside of <ul> you can't use text")
+		default:
+			return nil, p.errorf("there is no tag like this one %q", p.curTok.Val)
+		}
+	}
+
+	return newUl(Ul.Nodes), nil
+}
 
 func (p *Parser) parseLi() (*Node, error) {
 	p.nextToken()
@@ -315,6 +332,13 @@ func newHead2(tagTitle string) *Node {
 	return &Node{
 		NodeType: TypeHead2,
 		NodeHead2: &NodeHead2{TagTitle: tagTitle},
+	}
+}
+
+func newUl(nodes []*Node) *Node {
+	return &Node{
+		NodeType: TypeUl,
+		NodeUl: &NodeUl{Nodes: nodes},
 	}
 }
 
