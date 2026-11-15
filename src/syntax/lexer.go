@@ -54,28 +54,28 @@ func (l *Lexer) NextToken() Token {
 	ch := l.src[l.pos]
 	startCol := l.col
 
-    // if ch == '"' {
-    // 	l.advance()
-    // 	startPos := l.pos
+    if ch == '"' {
+    	l.advance()
+    	startPos := l.pos
 
-    // 	for l.pos < len(l.src) && l.src[l.pos] != '"' && l.src[l.pos] != '\n' {
-    // 		if l.src[l.pos] == '\\' && l.pos+1 < len(l.src) {
-    // 			l.advance()
-    // 		}
-    // 		l.advance()
-    // 	}
+    	for l.pos < len(l.src) && l.src[l.pos] != '"' && l.src[l.pos] != '\n' {
+    		// if l.src[l.pos] == '\\' && l.pos+1 < len(l.src) {
+    		// 	l.advance()
+    		// }
+    		l.advance()
+    	}
 
-    // 	if l.pos >= len(l.src) || l.src[l.pos] != '"' {
-    // 		return Token{Type: TokenIllegal, Val: l.src[startPos-1: l.pos], Line: l.line, Col: startCol}
-    // 	}
+    	if l.pos >= len(l.src) || l.src[l.pos] != '"' {
+    		return Token{Type: TokenIllegal, Val: l.src[startPos-1: l.pos], Line: l.line, Col: startCol}
+    	}
 
-    // 	val := l.src[startPos:l.pos]
-    // 	if l.pos < len(l.src) && l.src[l.pos] == '"' {
-    // 		l.advance()
-    // 	}
+    	val := l.src[startPos:l.pos]
+    	if l.pos < len(l.src) && l.src[l.pos] == '"' {
+    		l.advance()
+    	}
 
-    // 	return Token{Type: TokenString, Val: val, Line: l.line, Col: startCol}
-    // }
+    	return Token{Type: TokenString, Val: val, Line: l.line, Col: startCol}
+    }
 
 
     switch ch {

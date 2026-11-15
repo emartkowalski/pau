@@ -13,6 +13,7 @@ const (
 	TokenEOF     TokenType = iota // The end of file
 	TokenIllegal                  // Unknown/mistakeble character
 	TokenText 					  // text...
+	TokenString 				  // "blablabla it's string"
 
 
 	TokenNewLine 				  // '\n'

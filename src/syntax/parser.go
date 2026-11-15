@@ -95,10 +95,13 @@ template :=
 		return "	" + "<li>" + n.NodeLi.TagTitle + "</li>\n"
 	case TypeTextLine:
 		return "	" + "<p>" + n.NodeTextLine.Line + "</p>"
+	case TypeA:
+		return `<a href="` + n.NodeA.Link + `">` + n.NodeA.TitleOfLink + `</a><br>` + "\n"
 	default:
 		return ""
 	}
 }
+ // <a href="index.html">HOME</a><br>
 
 type NodeKind int
 const (
@@ -108,6 +111,7 @@ const (
 	TypeHead2
 	TypeUl
 	TypeLi
+	TypeA
 	TypeTextLine
 )	
 
@@ -131,6 +135,11 @@ type NodeLi struct {
 	TagTitle string
 }
 
+type NodeA struct {
+	Link 	    string
+	TitleOfLink string
+}
+
 type NodeTextLine struct {
 	Line string
 }
@@ -144,6 +153,7 @@ type Node struct {
 	NodeHead2 		  *NodeHead2
 	NodeUl 			  *NodeUl
 	NodeLi 			  *NodeLi
+	NodeA 			  *NodeA
 	NodeTextLine 	  *NodeTextLine
 
 }
@@ -213,6 +223,8 @@ func (p *Parser) parseNode() (*Node, error) {
 			return p.parseUl()
 		case "<li>":
 			return p.parseLi()
+		case "<a>":
+			return p.parseA()
 		default:
 			return nil, p.errorf("Error parseNode(): there is no tag like this one %q", p.curTok.Val)
 		}
@@ -221,7 +233,7 @@ func (p *Parser) parseNode() (*Node, error) {
 		return p.parseText()
 	default:
 		if p.curTok.Type == TokenIllegal {
-			return nil, p.errorf("expect tag, got %q", p.curTok.Val)
+			return nil, p.errorf("it's not closed , got %q", p.curTok.Val)
 		}		
 		return nil, p.errorf("unknown node type %q", p.curTok.Val)
 	}
@@ -290,6 +302,35 @@ func (p *Parser) parseLi() (*Node, error) {
 	return newLi(text), nil
 }
 
+func (p *Parser) parseA() (*Node, error) {
+	p.nextToken()
+
+	A := new(NodeA)
+
+	if p.curTok.Type == TokenString {
+		A.Link = p.curTok.Val
+		p.nextToken()
+	} else {
+		return nil, p.errorf("expected link, got %q", p.curTok.Val)
+	}
+
+	if p.curTok.Type != TokenAnd {
+		return nil, p.errorf("expected | , got %q", p.curTok.Val)
+	}
+	p.nextToken()
+
+	if p.curTok.Type == TokenText {
+		A.TitleOfLink = p.curTok.Val
+		p.nextToken()
+	} else {
+		return nil, p.errorf("expected text for link, got %q", p.curTok.Val)
+	}
+
+	p.skipNewLine()
+
+	return newA(A.Link, A.TitleOfLink), nil
+}
+
 func (p *Parser) parseText() (*Node, error) {
 
 	var sliceOfString []byte
@@ -349,9 +390,16 @@ func newLi(tagTitle string) *Node {
 	}
 }
 
+func newA(link string, titleOfLink string) *Node {
+	return &Node{
+		NodeType: TypeA,
+		NodeA: &NodeA{Link: link, TitleOfLink: titleOfLink},
+	}
+}
+
 func newTextLine(line_text string) *Node {
-	nodeTextLine := &NodeTextLine{Line: line_text}
 	return &Node{
 		NodeType: TypeTextLine,
-		NodeTextLine: nodeTextLine }
+		NodeTextLine: &NodeTextLine{Line: line_text},
+	}
 }
