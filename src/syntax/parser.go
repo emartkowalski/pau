@@ -85,6 +85,8 @@ template :=
 		return "	" + "<p>" + n.NodeTextLine.Line + "</p>\n"
 	case TypeA:
 		return `<a href="` + n.NodeA.Link + `">` + n.NodeA.TitleOfLink + `</a>` + "\n"
+	case TypeHr:
+		return "	<hr>\n"
 	default:
 		return ""
 	}
@@ -100,6 +102,7 @@ const (
 	TypeLi
 	TypeA
 	TypeTextLine
+	TypeHr
 )	
 
 type NodeMainHead struct {
@@ -131,6 +134,10 @@ type NodeTextLine struct {
 	Line string
 }
 
+type NodeHr struct {
+	Hr string
+}
+
 type Node struct {
 	NodeType    NodeKind
 
@@ -142,6 +149,7 @@ type Node struct {
 	NodeLi 			  *NodeLi
 	NodeA 			  *NodeA
 	NodeTextLine 	  *NodeTextLine
+	NodeHr 			  *NodeHr
 
 }
 
@@ -211,6 +219,10 @@ func (p *Parser) parseNode() (*Node, error) {
 			return p.parseLi()
 		case "<a>":
 			return p.parseA()
+		case "<hr>":
+			p.nextToken()
+			p.skipNewLine()
+			return newHr(), nil
 		default:
 			return nil, p.errorf("Error parseNode(): there is no tag like this one %q", p.curTok.Val)
 		}
@@ -271,6 +283,8 @@ func (p *Parser) parseUl() (*Node, error) {
 		}
 	}
 
+	p.skipNewLine()
+
 	return newUl(Ul.Nodes), nil
 }
 
@@ -329,13 +343,15 @@ func (p *Parser) parseText() (*Node, error) {
 			sliceOfString = append(sliceOfString, lineOfText...)
 
 		case TokenNewLine:
-			p.nextToken()
+
+			p.skipNewLine()
 			sliceOfString = append(sliceOfString, []byte("<br>\n    ")...)
 		default:
 			p.nextToken()
 		}
 	}
 	text := string(sliceOfString)
+	p.skipNewLine()
 
 	return newTextLine(text), nil
 }
@@ -391,5 +407,12 @@ func newTextLine(line_text string) *Node {
 	return &Node{
 		NodeType: TypeTextLine,
 		NodeTextLine: &NodeTextLine{Line: line_text},
+	}
+}
+
+func newHr() *Node {
+	return &Node{
+		NodeType: TypeHr,
+		NodeHr: &NodeHr{},
 	}
 }

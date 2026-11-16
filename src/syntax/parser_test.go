@@ -26,6 +26,9 @@ func TestParseSrcTrue(t *testing.T) {
 hello world
 another text
 
+the end of text...
+
+<hr>
 <a> "index.html" | HOME
 Main Site | 2026
 `,
@@ -52,8 +55,9 @@ Main Site | 2026
 </ul>
 	<p>hello world<br>
     another text<br>
-    <br>
+    the end of text...<br>
     </p>
+	<hr>
 <a href="index.html">HOME</a>
 	<p>Main Site | 2026<br>
     </p>
