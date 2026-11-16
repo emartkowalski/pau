@@ -325,7 +325,7 @@ func (p *Parser) parseA() (*Node, error) {
 	} else {
 		return nil, p.errorf("expected text for link, got %q", p.curTok.Val)
 	}
-
+	
 	p.skipNewLine()
 
 	return newA(A.Link, A.TitleOfLink), nil
@@ -333,27 +333,45 @@ func (p *Parser) parseA() (*Node, error) {
 
 func (p *Parser) parseText() (*Node, error) {
 
-	var sliceOfString []byte
+	var sb strings.Builder
 
 	for p.curTok.Type != TokenEOF && p.curTok.Type != TokenTag {
 		switch p.curTok.Type {
 		case TokenText:
-			lineOfText := p.curTok.Val
+			_, err := sb.WriteString(p.curTok.Val)
+			if err != nil {
+				return nil, p.errorf("%v", err)
+			}
 			p.nextToken()
-			sliceOfString = append(sliceOfString, lineOfText...)
+
+			if p.curTok.Type == TokenNewLine { // skip the first newline
+
+				_, err := sb.WriteString("<br>\n    ")
+				if err != nil {
+					return nil, p.errorf("%v", err)
+				}
+				p.nextToken()
+			}
+
+			if p.curTok.Type == TokenNewLine { // skip the second newline
+
+				_, err := sb.WriteString("<br>\n    ")
+				if err != nil {
+					return nil, p.errorf("%v", err)
+				}
+				p.nextToken()
+			}
 
 		case TokenNewLine:
-
 			p.skipNewLine()
-			sliceOfString = append(sliceOfString, []byte("<br>\n    ")...)
 		default:
 			p.nextToken()
 		}
 	}
-	text := string(sliceOfString)
+
 	p.skipNewLine()
 
-	return newTextLine(text), nil
+	return newTextLine(sb.String()), nil
 }
 
 func newMainHead(main_text string) *Node {
