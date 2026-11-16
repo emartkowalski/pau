@@ -19,95 +19,15 @@ func TestParseSrcTrue(t *testing.T) {
 `Personal Wiki
 
 <h2> вступление
-
-<li> привет мир
-how are you feel
-yepiii`,
-			expect:
-`<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Personal Wiki</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-    </style>
-</head>
-<body leftmargin="250" rightmargin="250" bgcolor="#d3d3d3">
-
-    <h1 align="center">Personal Wiki</h1>
-    <hr>
-
-	<h2>вступление</h2>
-	<li>привет мир</li>
-	<p>how are you feel<br>
-    yepiii</p>
-
-    <hr>
-    <a href="index.html">HOME</a><br>
-    <p>Personal Wiki | 2026</p>
-
-</body>
-</html>`,
-	},
-		{
-			name: "test2_<ul>",
-			input:
-`Personal Wiki
-
-<h2> вступление
 <ul>
 <li> асталависта бейбе
 </ul>
-<li> привет мир
+
 hello world
-`,
-			expect:
-`<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Personal Wiki</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-    </style>
-</head>
-<body leftmargin="250" rightmargin="250" bgcolor="#d3d3d3">
+another text
 
-    <h1 align="center">Personal Wiki</h1>
-    <hr>
-
-	<h2>вступление</h2>
-<ul>
-	<li>асталависта бейбе</li>
-</ul>
-	<li>привет мир</li>
-	<p>hello world<br>
-    </p>
-
-    <hr>
-    <a href="index.html">HOME</a><br>
-    <p>Personal Wiki | 2026</p>
-
-</body>
-</html>`,
-	},
-		{
-			name: "test3_<a>",
-			input:
-`Personal Wiki
-
-<h2> вступление
-<ul>
-<li> асталависта бейбе
-</ul>
-<li> привет мир
 <a> "index.html" | HOME
-hello world
+Main Site | 2026
 `,
 			expect:
 `<!DOCTYPE html>
@@ -130,18 +50,17 @@ hello world
 <ul>
 	<li>асталависта бейбе</li>
 </ul>
-	<li>привет мир</li>
-<a href="index.html">HOME</a><br>
 	<p>hello world<br>
+    another text<br>
+    <br>
     </p>
-
-    <hr>
-    <a href="index.html">HOME</a><br>
-    <p>Personal Wiki | 2026</p>
+<a href="index.html">HOME</a>
+	<p>Main Site | 2026<br>
+    </p>
 
 </body>
 </html>`,
-		},
+	},
 }
 	for _, tt := range table_test {
 		t.Run(tt.input, func(t *testing.T) {

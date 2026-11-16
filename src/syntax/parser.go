@@ -8,21 +8,18 @@ import (
 type Parser struct {
 	lexer    *Lexer
 	curTok   Token
-	peekTok  Token
 	filePath string
 }
 
 func NewParser(l *Lexer, filepath string) *Parser {
 	p := &Parser{lexer: l, filePath: filepath}
-	// Read the first two tokens to fill curTok, peekTok
-	p.nextToken()
+	// Read the first token to fill curTok
 	p.nextToken()
 	return p
 }
 
 func (p *Parser) nextToken() {
-	p.curTok = p.peekTok
-	p.peekTok = p.lexer.NextToken()
+	p.curTok = p.lexer.NextToken()
 }
 
 func (p *Parser) skipNewLine() {
@@ -59,16 +56,7 @@ template :=
 		return strings.ReplaceAll(template, "Title", n.NodeMainHead.Template)	
 
 	case TypeTemplateFloor:
-template :=
-`
-
-    <hr>
-    <a href="index.html">HOME</a><br>
-    <p>Title | 2026</p>
-
-</body>
-</html>`
-		return strings.ReplaceAll(template, "Title", n.NodeTemplateFloor.Template)
+		return n.NodeTemplateFloor.Template
 
 	case TypeHead2:
 		return "	" + "<h2>" + n.NodeHead2.TagTitle + "</h2>\n"
@@ -94,14 +82,13 @@ template :=
 	case TypeLi:
 		return "	" + "<li>" + n.NodeLi.TagTitle + "</li>\n"
 	case TypeTextLine:
-		return "	" + "<p>" + n.NodeTextLine.Line + "</p>"
+		return "	" + "<p>" + n.NodeTextLine.Line + "</p>\n"
 	case TypeA:
-		return `<a href="` + n.NodeA.Link + `">` + n.NodeA.TitleOfLink + `</a><br>` + "\n"
+		return `<a href="` + n.NodeA.Link + `">` + n.NodeA.TitleOfLink + `</a>` + "\n"
 	default:
 		return ""
 	}
 }
- // <a href="index.html">HOME</a><br>
 
 type NodeKind int
 const (
@@ -161,11 +148,10 @@ type Node struct {
 // Главная функция парсинга всего файла
 func (p *Parser) Parse() ([]*Node, error) {
 	var nodes []*Node
-	var HeadTitle string
 
 	p.skipNewLine()
 	if p.curTok.Type == TokenText {
-		HeadTitle = p.curTok.Val
+		HeadTitle := p.curTok.Val
 		p.nextToken()
 		p.skipNewLine()
 		nodes = append(nodes, newMainHead(HeadTitle))
@@ -184,7 +170,7 @@ func (p *Parser) Parse() ([]*Node, error) {
 		nodes = append(nodes, node)
 	}
 
-	nodes = append(nodes, newTamplateFloor(HeadTitle))
+	nodes = append(nodes, newTamplateFloor())
 
 	return nodes, nil
 }
@@ -335,7 +321,7 @@ func (p *Parser) parseText() (*Node, error) {
 
 	var sliceOfString []byte
 
-	for p.curTok.Type != TokenEOF {
+	for p.curTok.Type != TokenEOF && p.curTok.Type != TokenTag {
 		switch p.curTok.Type {
 		case TokenText:
 			lineOfText := p.curTok.Val
@@ -362,11 +348,15 @@ func newMainHead(main_text string) *Node {
 		NodeMainHead: newMainHead}
 }
 
-func newTamplateFloor(main_text string) *Node {
-	nodeTemplateFloor := &NodeTemplateFloor{main_text}
+func newTamplateFloor() *Node {
+template :=
+`
+</body>
+</html>`
 	return &Node{
 		NodeType: TypeTemplateFloor,
-		NodeTemplateFloor: nodeTemplateFloor }
+		NodeTemplateFloor:  &NodeTemplateFloor{template},
+	}
 }
 
 func newHead2(tagTitle string) *Node {
