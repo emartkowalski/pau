@@ -297,14 +297,16 @@ func (p *Parser) parseA() (*Node, error) {
 		return nil, p.errorf("expected link, got %q", p.curTok.Val)
 	}
 
-	if p.curTok.Type != TokenAnd {
-		return nil, p.errorf("expected | , got %q", p.curTok.Val)
+	if p.curTok.Type == TokenAnd {
+		p.nextToken()
+		// return nil, p.errorf("expected | , got %q", p.curTok.Val)
 	}
-	p.nextToken()
 
 	if p.curTok.Type == TokenText {
 		A.TitleOfLink = p.curTok.Val
 		p.nextToken()
+	} else if p.curTok.Type == TokenNewLine {
+		A.TitleOfLink = A.Link
 	} else {
 		return nil, p.errorf("expected text for link, got %q", p.curTok.Val)
 	}
