@@ -8,6 +8,8 @@ import (
 	"pau/src/syntax"
 )
 
+var pauVersion string = "v0.2.0"
+
 func main() {
 
 	if len(os.Args) < 2 {
@@ -25,14 +27,36 @@ func main() {
 			os.Exit(1)
 		}
 
+		if os.Args[2] == "." {
+			entries, err := os.ReadDir(".")
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+
+			for _, file := range entries {
+				// fmt.Printf("%s %t\n", file.Name(), file.IsDir())
+
+				if file.IsDir() == false && filepath.Ext(file.Name()) == ".pau" {
+					generate_HTML_File(file.Name())
+				} else if file.IsDir() == true {
+					continue
+				}
+			}
+			os.Exit(0)
+		}
+
 		subcomandArgs := os.Args[2]
 		generate_HTML_File(subcomandArgs)
 	case "-h", "-help", "help":
 		fmt.Println("=== help ===")
 		fmt.Println("run 'example.p'")
 		os.Exit(0)
+	case  "-v", "-version", "version":
+		fmt.Printf("pau version %v\n", pauVersion)
+		os.Exit(0)
 	default:
-		fmt.Printf("uknown command %q\n", subcomand)
+		fmt.Printf("unknown command %q\n", subcomand)
 		os.Exit(1)
 	}
 
