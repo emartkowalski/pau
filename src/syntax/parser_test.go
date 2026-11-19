@@ -20,7 +20,7 @@ func TestParseSrcTrue(t *testing.T) {
 
 <h2> вступление
 <ul>
-<li> асталависта бейбе
+<a> "index.html" | HOME
 </ul>
 
 hello world
@@ -51,8 +51,9 @@ Main Site | 2026
 
 	<h2>вступление</h2>
 <ul>
-	<li>асталависта бейбе</li>
+	<li><a href="index.html">HOME</a></li>
 </ul>
+
 	<p>hello world<br>
     another text<br>
     <br>
@@ -67,61 +68,7 @@ Main Site | 2026
 </body>
 </html>`,
 	},
-		{
-			name: "test_1.1",
-			input:
-`Personal Wiki
 
-<h2> вступление
-<ul>
-<li> асталависта бейбе
-</ul>
-
-hello world
-another text
-
-
-the end of text...
-
-<hr>
-<a> "index.html" | HOME
-Main Site | 2026
-`,
-			expect:
-`<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Personal Wiki</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-    </style>
-</head>
-<body leftmargin="250" rightmargin="250" bgcolor="#d3d3d3">
-
-    <h1 align="center">Personal Wiki</h1>
-    <hr>
-
-	<h2>вступление</h2>
-<ul>
-	<li>асталависта бейбе</li>
-</ul>
-	<p>hello world<br>
-    another text<br>
-    <br>
-    the end of text...<br>
-    <br>
-    </p>
-	<hr>
-<a href="index.html">HOME</a>
-	<p>Main Site | 2026<br>
-    </p>
-
-</body>
-</html>`,
-		},
 }
 	for _, tt := range table_test {
 		t.Run(tt.input, func(t *testing.T) {
