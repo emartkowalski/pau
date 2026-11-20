@@ -50,7 +50,9 @@ func main() {
 		generate_HTML_File(subcomandArgs)
 	case "-h", "-help", "help":
 		fmt.Println("=== help ===")
-		fmt.Println("run 'example.p'")
+		fmt.Println("=== run")
+		fmt.Println("	run 'pathToFile.pau'")
+		fmt.Println("	run .")
 		os.Exit(0)
 	case  "-v", "-version", "version":
 		fmt.Printf("pau version %v\n", pauVersion)
