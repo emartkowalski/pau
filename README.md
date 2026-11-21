@@ -2,8 +2,7 @@
 
 Pau - это минималистичный язык разметки который компилируеться в html
 
-в качестве примера создадим файл `mysite.pau`
-
+для начала создадим файл `mysite.pau`
 ```txt
 Personal Site
 
@@ -16,19 +15,19 @@ check this out...
 ```shell
 ./pau run mysite.pau
 ```
-после чего можно открыть html файл в браузере
+после чего можно открыть html файл в браузере.
 
-## Теги
+### Documentation
 
-Pau потдеживает такие теги:
-- заголовок - `<h2>`
-	- `<h2> TITLE`
+Pau потдеживает такие теги: <br>
+Заголовки:
+<br> `<h2> TITLE` - компилируеться в `<h2>TITLE</h2>`
 
-- гиперссылки `<a>`
-	- `<a> "index.html" | HOME`
-	- `<a> "index.html"`
+Гиперссылки:
+<br> `<a> "index.html" | HOME`
+<br> `<a> "index.html"`
 
-- тег `<ul></ul>` - добавляет табуляцию, покачто в нем можно размещать только гиперссылки 
+`<ul></ul>` - добавляет табуляцию, покачто в нем можно размещать только гиперссылки 
 ```txt
 <ul>
 <a> "index.html" | HOME
@@ -36,10 +35,9 @@ Pau потдеживает такие теги:
 </ul>
 ```
 
-- `<hr>` - добавляет полосу
-
-- любая строка без тега принимается как текст, кроме первой - она для заголовка сайта
-- пример:
+`<hr>` - добавляет полосу
+<br> Любая строка без тега принимается как текст, кроме первой, она для заголовка сайта.
+<br> Пример:
 ```txt
 Personal Site
 
@@ -62,17 +60,13 @@ the end of text...
 <a> "index.html" | HOME
 Personal Site | 2090
 ```
+### args:
+- `./pau -version`
+- `./pau -help`
+- `./pau run .`
 
-### CLI `./pau -help`
 
-```shell
-=== help ===
-=== run
-        run 'pathToFile.pau'
-        run .
-
-```
 Скомпилировать все файлы .pau `./pau run .`, дейсвует только в локальной директории.
 
 ## License
-This project is dedicated to the public domain under the Creative Commons Zero v1.0 Universal license. You can copy, modify, and distribute the code without asking for permission. See the [LICENSE](LICENSE) file for details.
+This project is dedicated to the public domain under the Creative Commons Zero v1.0 Universal license.You can copy, modify, and distribute the code without asking for permission.See the [LICENSE](LICENSE) file for details.
