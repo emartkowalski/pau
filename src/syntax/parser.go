@@ -66,12 +66,12 @@ template :=
 		}
 		var sb strings.Builder
 
-		sb.WriteString("<ul>\n")
+		sb.WriteString("<ul>")
 
 		for _, node := range n.NodeUl.Nodes {
 
 			if node.NodeType == TypeA {
-				sb.WriteString("	<li>")
+				sb.WriteString("\n	<li>")
 				sb.WriteString(strings.ReplaceAll(node.String(), "\n", ""))
 				sb.WriteString("</li>")
 			}

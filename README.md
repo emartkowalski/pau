@@ -63,10 +63,7 @@ Personal Site | 2090
 ### args:
 - `./pau -version`
 - `./pau -help`
-- `./pau run .`
-
-
-Скомпилировать все файлы .pau `./pau run .`, дейсвует только в локальной директории.
+- `./pau run .` - Начиная с текущей папки компилирует все файлы `.pau` , также вместо точки можно указать путь.
 
 ## License
 This project is dedicated to the public domain under the Creative Commons Zero v1.0 Universal license.You can copy, modify, and distribute the code without asking for permission.See the [LICENSE](LICENSE) file for details.

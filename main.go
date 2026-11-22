@@ -3,6 +3,7 @@ package main
 import (
 	"path/filepath"
 	"strings"
+	"io/fs"
 	"fmt"
 	"os"
 	"pau/src/syntax"
@@ -13,6 +14,7 @@ var pauVersion string = "v0.2.0"
 func main() {
 
 	if len(os.Args) < 2 {
+		logo()
 		fmt.Printf("not enouth arguments\n")
 		os.Exit(1)
 	}
@@ -23,41 +25,62 @@ func main() {
 	switch subcomand {
 	case "run":
 		if len(os.Args) < 3 {
+			logo()
 			fmt.Printf("not enouth arguments\n")
 			os.Exit(1)
 		}
 
-		if os.Args[2] == "." {
-			entries, err := os.ReadDir(".")
+		pathDir := os.Args[2]
+		logo()
+		err := filepath.WalkDir(pathDir, func(path string, file fs.DirEntry, err error) error {
 			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
+				return err
 			}
 
-			for _, file := range entries {
-				// fmt.Printf("%s %t\n", file.Name(), file.IsDir())
-
-				if file.IsDir() == false && filepath.Ext(file.Name()) == ".pau" {
-					generate_HTML_File(file.Name())
-				} else if file.IsDir() == true {
-					continue
-				}
+			if file.IsDir() == false && filepath.Ext(file.Name()) == ".pau" {
+				generate_HTML_File(path)
 			}
-			os.Exit(0)
+
+			return nil
+		})
+		if err != nil {
+			logo()
+			fmt.Println(err)
+			os.Exit(1)
 		}
 
-		subcomandArgs := os.Args[2]
-		generate_HTML_File(subcomandArgs)
+		// if os.Args[2] == "." {
+		// 	entries, err := os.ReadDir(".")
+		// 	if err != nil {
+		// 		fmt.Println(err)
+		// 		os.Exit(1)
+		// 	}
+
+		// 	for _, file := range entries {
+		// 		// fmt.Printf("%s %t\n", file.Name(), file.IsDir())
+
+		// 		if file.IsDir() == false && filepath.Ext(file.Name()) == ".pau" {
+		// 			generate_HTML_File(file.Name())
+		// 		} else if file.IsDir() == true {
+		// 			continue
+		// 		}
+		// 	}
+		// 	os.Exit(0)
+		// }
+
 	case "-h", "-help", "help":
+		logo()
 		fmt.Println("=== help ===")
 		fmt.Println("=== run")
 		fmt.Println("	run 'pathToFile.pau'")
 		fmt.Println("	run .")
 		os.Exit(0)
 	case  "-v", "-version", "version":
+		logo()
 		fmt.Printf("pau version %v\n", pauVersion)
 		os.Exit(0)
 	default:
+		logo()
 		fmt.Printf("unknown command %q\n", subcomand)
 		os.Exit(1)
 	}
@@ -68,14 +91,15 @@ func generate_HTML_File(filepathPau string) {
 
 	content, err := os.ReadFile(filepathPau)
 	if err != nil {
-		fmt.Printf("read file failed: %v\n", err)
+		logo()
+		fmt.Printf("read file failed! %v\n", err)
 		os.Exit(1)
 	}
 	lexer := syntax.NewLexer(string(content))
 	parser := syntax.NewParser(lexer, filepathPau)
 	nodes, err := parser.Parse()
 	if err != nil {
-		fmt.Println("#pau")
+		logo()
 		fmt.Printf("%v\n", err)
 		os.Exit(1)
 	}
@@ -88,6 +112,7 @@ func generate_HTML_File(filepathPau string) {
 
 	file, err := os.Create(newfilepathPau)
 	if err != nil {
+		logo()
 		fmt.Println(err)
 		os.Exit(1)
 	}
@@ -100,11 +125,10 @@ func generate_HTML_File(filepathPau string) {
 			os.Exit(1)
 		}
 	}
-	fmt.Printf("done! %q\n", newfilepathPau)
+	fmt.Printf("done! %s\n", newfilepathPau)
 
 }
 
-/*
-`
-
-*/
+func logo() {
+	fmt.Println("#pau")
+}
