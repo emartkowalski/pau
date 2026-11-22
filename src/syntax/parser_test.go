@@ -3,6 +3,7 @@ package syntax
 import (
 	"testing"
 	"strings"
+	"os"
 )
 
 
@@ -153,6 +154,7 @@ Main Site | 2026
 			if got != tt.expect {
 				t.Fatalf("\n======== input ========\n%s\n======== expect ========\n%s\n======== got ========\n%s",
 					tt.input, tt.expect, got)
+					os.Exit(1)
 			}
 		})
 	}
