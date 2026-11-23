@@ -49,25 +49,6 @@ func main() {
 			os.Exit(1)
 		}
 
-		// if os.Args[2] == "." {
-		// 	entries, err := os.ReadDir(".")
-		// 	if err != nil {
-		// 		fmt.Println(err)
-		// 		os.Exit(1)
-		// 	}
-
-		// 	for _, file := range entries {
-		// 		// fmt.Printf("%s %t\n", file.Name(), file.IsDir())
-
-		// 		if file.IsDir() == false && filepath.Ext(file.Name()) == ".pau" {
-		// 			generate_HTML_File(file.Name())
-		// 		} else if file.IsDir() == true {
-		// 			continue
-		// 		}
-		// 	}
-		// 	os.Exit(0)
-		// }
-
 	case "-h", "-help", "help":
 		logo()
 		fmt.Println("=== help ===")

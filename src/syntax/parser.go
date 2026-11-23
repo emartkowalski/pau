@@ -33,7 +33,7 @@ func (n *Node) String() string {
 		return ""
 	}
 
-	switch n.NodeType {
+	switch n.Type {
 	case TypeMainHead:
 template :=
 `<!DOCTYPE html>
@@ -70,7 +70,7 @@ template :=
 
 		for _, node := range n.NodeUl.Nodes {
 
-			if node.NodeType == TypeA {
+			if node.Type == TypeA {
 				sb.WriteString("\n	<li>")
 				sb.WriteString(strings.ReplaceAll(node.String(), "\n", ""))
 				sb.WriteString("</li>")
@@ -91,9 +91,9 @@ template :=
 	}
 }
 
-type NodeKind int
+type NodeType int
 const (
-	TypeMainHead NodeKind = iota
+	TypeMainHead NodeType = iota
 	TypeTemplateFloor
 
 	TypeHead2
@@ -133,7 +133,7 @@ type NodeHr struct {
 }
 
 type Node struct {
-	NodeType    NodeKind
+	Type    NodeType
 
 	NodeMainHead 	  *NodeMainHead
 	NodeTemplateFloor *NodeTemplateFloor
@@ -360,11 +360,9 @@ func (p *Parser) parseText() (*Node, error) {
 }
 
 func newMainHead(main_text string) *Node {
-
-	newMainHead := &NodeMainHead{Template: main_text}
 	return &Node{
-		NodeType: TypeMainHead,
-		NodeMainHead: newMainHead}
+		Type: TypeMainHead,
+		NodeMainHead: &NodeMainHead{Template: main_text}}
 }
 
 func newTamplateFloor() *Node {
@@ -373,42 +371,42 @@ template :=
 </body>
 </html>`
 	return &Node{
-		NodeType: TypeTemplateFloor,
+		Type: TypeTemplateFloor,
 		NodeTemplateFloor:  &NodeTemplateFloor{template},
 	}
 }
 
 func newHead2(tagTitle string) *Node {
 	return &Node{
-		NodeType: TypeHead2,
+		Type: TypeHead2,
 		NodeHead2: &NodeHead2{TagTitle: tagTitle},
 	}
 }
 
 func newUl(nodes []*Node) *Node {
 	return &Node{
-		NodeType: TypeUl,
+		Type: TypeUl,
 		NodeUl: &NodeUl{Nodes: nodes},
 	}
 }
 
 func newA(link string, titleOfLink string) *Node {
 	return &Node{
-		NodeType: TypeA,
+		Type: TypeA,
 		NodeA: &NodeA{Link: link, TitleOfLink: titleOfLink},
 	}
 }
 
 func newTextLine(line_text string) *Node {
 	return &Node{
-		NodeType: TypeTextLine,
+		Type: TypeTextLine,
 		NodeTextLine: &NodeTextLine{Line: line_text},
 	}
 }
 
 func newHr() *Node {
 	return &Node{
-		NodeType: TypeHr,
+		Type: TypeHr,
 		NodeHr: &NodeHr{},
 	}
 }
